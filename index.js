@@ -51,16 +51,15 @@ class MinuetAccessor {
         const bc = Object.keys(this.buffers);
         for (let n = 0; n < bc.length; n++) {
             const name = bc[n];
-            if (url.indexOf(name + "/") == -1) {
+            if (url.indexOf(name + "/") != 0)
                 continue;
-            }
             const yml = this.buffers[name];
             let status_ = false;
             if (yml.routes) {
                 status_ = this.routes(url, name, yml.routes, req, res);
             }
-            else if (yml.authority) {
-                status_ = this.authority(url, name, yml.routes, req, res);
+            if (yml.authority) {
+                status_ = this.authority(url, name, yml.authority, req, res);
             }
             if (status_) {
                 status = status_;
@@ -73,7 +72,7 @@ class MinuetAccessor {
         let status = false;
         for (let n = 0; n < routes.length; n++) {
             const route = routes[n];
-            if (route.redirect || route.silent) {
+            if (route.redirect || route.silent || route.domain) {
                 if (!route.root)
                     continue;
                 let target;
@@ -83,7 +82,7 @@ class MinuetAccessor {
                 else {
                     target = route.root;
                 }
-                if (url.indexOf(rootUrl + target) == -1)
+                if (url.indexOf(rootUrl + target) != 0)
                     continue;
                 const remainUrl = url.substring((rootUrl + target).length);
                 let redirectUrl;
@@ -123,8 +122,40 @@ class MinuetAccessor {
         }
         return status;
     }
-    authority(rl, rootUrl, routes, req, res) {
+    authority(url, rootUrl, routes, req, res) {
         let status = false;
+        for (let n = 0; n < routes.length; n++) {
+            const route = routes[n];
+            if (!(route.root && route.user && route.pass)) {
+                continue;
+            }
+            let target;
+            if (route.root[route.root.length - 1] == "*") {
+                target = route.root.substring(0, route.root.length - 1);
+            }
+            else {
+                target = route.root;
+            }
+            if (url.indexOf(rootUrl + target) != 0)
+                continue;
+            const encodedCredentials = Buffer.from(`${route.user}:${route.pass}`).toString('base64');
+            const authHeader = req.headers['authorization'];
+            if (authHeader && authHeader.startsWith('Basic ')) {
+                const credentials = authHeader.split(' ')[1];
+                if (credentials === encodedCredentials) {
+                    break;
+                }
+            }
+            res.statusCode = 401;
+            res.setHeader("WWW-Authenticate", "Basic realm=\"Authoricate\"");
+            if (!route.failureMessage) {
+                route.failureMessage = "Authentication failure";
+            }
+            res.write(route.failureMessage);
+            res.end();
+            status = true;
+            break;
+        }
         return status;
     }
 }

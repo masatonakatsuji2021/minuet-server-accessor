@@ -4,11 +4,7 @@ import * as http from "http";
 import * as yaml from "js-yaml";
 
 export interface MinuetAccessorOption {
-
     rootDir? : string,
-
-
-
 }
 
 export class MinuetAccessor {
@@ -68,9 +64,7 @@ export class MinuetAccessor {
         for (let n = 0 ; n < bc.length ;n++ ){
             const name = bc[n];
 
-            if (url.indexOf(name + "/") == -1) {
-                continue;
-            }
+            if (url.indexOf(name + "/") != 0) continue;
 
             const yml = this.buffers[name];
 
@@ -78,8 +72,8 @@ export class MinuetAccessor {
             if (yml.routes){
                 status_ = this.routes(url, name, yml.routes, req, res);
             }
-            else if(yml.authority) {
-                status_ = this.authority(url,  name, yml.routes, req, res);
+            if(yml.authority) {
+                status_ = this.authority(url,  name, yml.authority, req, res);
             }
  
             if (status_) {
@@ -96,7 +90,7 @@ export class MinuetAccessor {
         for (let n = 0 ; n < routes.length ; n++){
             const route = routes[n];
             
-            if (route.redirect || route.silent) {
+            if (route.redirect || route.silent || route.domain) {
                 if (!route.root) continue;
                 
                 let target : string;
@@ -106,9 +100,9 @@ export class MinuetAccessor {
                 else {
                     target = route.root;
                 }
-                if (url.indexOf(rootUrl + target) == -1) continue;
+                if (url.indexOf(rootUrl + target) != 0) continue;
 
-                const remainUrl = url.substring((rootUrl+target).length);
+                const remainUrl = url.substring((rootUrl + target).length);
 
                 let redirectUrl;
                 if (route.redirect){
@@ -146,25 +140,54 @@ export class MinuetAccessor {
                     req.url = redirectUrl;
                 }
             }
-
-
         }
 
         return status;
     }
 
-    private authority (rl : string, rootUrl : string, routes : Array<MinuetAccessorRoute>, req : http.IncomingMessage, res : http.ServerResponse) : boolean {
+    private authority (url : string, rootUrl : string, routes : Array<MinuetAccessorAuthority>, req : http.IncomingMessage, res : http.ServerResponse) : boolean {
         let status : boolean = false;
 
+        for (let n = 0 ; n < routes.length ; n++){
+            const route = routes[n];
 
+            if (!(route.root && route.user && route.pass)) {
+                continue;
+            }
 
+            let target : string;
+            if (route.root[route.root.length - 1] == "*") {
+                target = route.root.substring(0, route.root.length - 1);
+            }
+            else {
+                target = route.root;
+            }
+            
+            if (url.indexOf(rootUrl + target) != 0) continue;
 
+            const encodedCredentials = Buffer.from(`${route.user}:${route.pass}`).toString('base64');
+            const authHeader = req.headers['authorization'];
+            if (authHeader && authHeader.startsWith('Basic ')) {
+                const credentials = authHeader.split(' ')[1];            
+                if (credentials === encodedCredentials) {
+                    break;
+                }
+            }
+
+            res.statusCode = 401;
+            res.setHeader("WWW-Authenticate", "Basic realm=\"Authoricate\"");
+            if (!route.failureMessage){
+                route.failureMessage = "Authentication failure";
+            }
+            res.write(route.failureMessage);
+            res.end();
+            status = true;
+            break;
+        }
 
         return status;
     }
 }
-
-
 
 interface MinuetAccessorRoute {
     root? : string,
@@ -173,4 +196,12 @@ interface MinuetAccessorRoute {
     domain? : string,
     mode? : "none" | "leave" | "params",
     statusCode? : number,
+}
+
+
+interface MinuetAccessorAuthority {
+    root? : string,
+    user? : string,
+    pass? : string,
+    failureMessage? : string,
 }

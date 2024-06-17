@@ -26,21 +26,6 @@ routes:
 
 authority: 
   - root: /sub7/*
-    use: 1234
+    user: 1234
     pass: 5678
-
-blockers:
-  - rule: equal
-    root: /block_1
-    statusCode: 404
-
-  - rule: equal
-    root: /block_2/*
-    statusCode: 404
-
-  - rule: mime
-    root: /block_2/*
-    mimes:
-      - image/jpeg
-      - 
-    statusCode: 404
+    failureMessage: 認証ダメでしたww
