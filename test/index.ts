@@ -5,8 +5,6 @@ const ma = new MinuetAccessor();
 
 const h = http.createServer((req, res) => {
     const status = ma.listen(req, res);
-    console.log(status);
-
     if (!status) {
         res.write("URL=" + req.url);
         if (req.headers.params){

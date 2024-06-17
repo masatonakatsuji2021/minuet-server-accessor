@@ -2,6 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as http from "http";
 import * as yaml from "js-yaml";
+import { MinuetServerModuleBase } from "minuet-server";
 
 export interface MinuetAccessorOption {
     rootDir? : string,
@@ -198,10 +199,23 @@ interface MinuetAccessorRoute {
     statusCode? : number,
 }
 
-
 interface MinuetAccessorAuthority {
     root? : string,
     user? : string,
     pass? : string,
     failureMessage? : string,
+}
+
+export class MinuetServerModuleAccessor extends MinuetServerModuleBase {
+
+    private accessor : MinuetAccessor;
+
+    public onBegin(): void {
+        this.accessor = new MinuetAccessor(this.init);
+    }
+
+    public async onRequest(req: http.IncomingMessage, res: http.ServerResponse<http.IncomingMessage>): Promise<boolean> {
+        const status = this.accessor.listen(req, res);
+        return status;
+    }
 }
