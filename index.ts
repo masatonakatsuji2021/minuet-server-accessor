@@ -73,8 +73,11 @@ export class MinuetAccessor {
             if (yml.routes){
                 status_ = this.routes(url, name, yml.routes, req, res);
             }
-            if(yml.authority) {
-                status_ = this.authority(url,  name, yml.authority, req, res);
+            if (yml.authority) {
+                status_ = this.authority(url, name, yml.authority, req, res);
+            }
+            if (yml.blocks) {
+                status_ = this.blocks(url, name, yml.blocks, req, res);
             }
  
             if (status_) {
@@ -188,6 +191,13 @@ export class MinuetAccessor {
 
         return status;
     }
+
+    private blocks(url : string, rootUrl : string, routes : Array<MinuetAccessorAuthority>, req : http.IncomingMessage, res : http.ServerResponse) : boolean {
+        let status : boolean = false;
+
+
+        return status;
+    }
 }
 
 interface MinuetAccessorRoute {
@@ -204,6 +214,11 @@ interface MinuetAccessorAuthority {
     user? : string,
     pass? : string,
     failureMessage? : string,
+}
+
+interface MinuetAccessorBlock {
+    root? : string,
+    statusCode? : number,
 }
 
 export class MinuetServerModuleAccessor extends MinuetServerModuleBase {
