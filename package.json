@@ -1,0 +1,30 @@
+{
+  "name": "minuet-server-accessor",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/masatonakatsuji2021/minuet-server-accessor.git"
+  },
+  "keywords": [
+    "server",
+    "accessor",
+    "node",
+    "http-proxy",
+    "js-yaml"
+  ],
+  "author": "Masato Nakatsuji",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/masatonakatsuji2021/minuet-server-accessor/issues"
+  },
+  "homepage": "https://github.com/masatonakatsuji2021/minuet-server-accessor#readme",
+  "dependencies": {
+    "@types/node": "^20.12.12",
+    "http-proxy": "^1.18.1",
+    "js-yaml": "^4.1.0"
+  }
+}

@@ -1,0 +1,46 @@
+routes:
+
+  - root: /sub1/*      
+    redirect: /________redirect_page
+    statusCode: 301
+
+  - root: /sub2/*
+    redirect: /________redirect_page_2
+    statusCode: 301
+    mode: leave
+
+  - root: /sub3/*
+    silent: /________redirect_page_3_silent
+
+  - root: /sub4/*
+    silent: /________redirect_page_4_silent
+    mode: leave
+
+  - root: /sub5/*
+    silent: /________redirect_page_5_silent
+    mode: params
+
+  - root: /sub6/*
+    silent: ../______redirect_page_6_silent
+    mode: params
+
+authority: 
+  - root: /sub7/*
+    use: 1234
+    pass: 5678
+
+blockers:
+  - rule: equal
+    root: /block_1
+    statusCode: 404
+
+  - rule: equal
+    root: /block_2/*
+    statusCode: 404
+
+  - rule: mime
+    root: /block_2/*
+    mimes:
+      - image/jpeg
+      - 
+    statusCode: 404
