@@ -5,7 +5,6 @@ const __1 = require("../");
 const ma = new __1.MinuetAccessor();
 const h = http.createServer((req, res) => {
     const status = ma.listen(req, res);
-    console.log(status);
     if (!status) {
         res.write("URL=" + req.url);
         if (req.headers.params) {

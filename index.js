@@ -1,9 +1,19 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MinuetAccessor = void 0;
+exports.MinuetServerModuleAccessor = exports.MinuetAccessor = void 0;
 const fs = require("fs");
 const path = require("path");
 const yaml = require("js-yaml");
+const minuet_server_1 = require("minuet-server");
 class MinuetAccessor {
     constructor(options) {
         this.rootDir = "htdocs";
@@ -60,6 +70,9 @@ class MinuetAccessor {
             }
             if (yml.authority) {
                 status_ = this.authority(url, name, yml.authority, req, res);
+            }
+            if (yml.blocks) {
+                status_ = this.blocks(url, name, yml.blocks, req, res);
             }
             if (status_) {
                 status = status_;
@@ -158,5 +171,21 @@ class MinuetAccessor {
         }
         return status;
     }
+    blocks(url, rootUrl, routes, req, res) {
+        let status = false;
+        return status;
+    }
 }
 exports.MinuetAccessor = MinuetAccessor;
+class MinuetServerModuleAccessor extends minuet_server_1.MinuetServerModuleBase {
+    onBegin() {
+        this.accessor = new MinuetAccessor(this.init);
+    }
+    onRequest(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const status = this.accessor.listen(req, res);
+            return status;
+        });
+    }
+}
+exports.MinuetServerModuleAccessor = MinuetServerModuleAccessor;
