@@ -25,6 +25,6 @@
   "dependencies": {
     "@types/node": "^20.12.12",
     "js-yaml": "^4.1.0",
-    "minuet-server-web": "git+https://github.com/masatonakatsuji2021/minuet-server-web.git"
+    "minuet-server": "git+https://github.com/masatonakatsuji2021/minuet-server.git"
   }
 }

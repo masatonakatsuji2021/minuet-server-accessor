@@ -28,4 +28,23 @@ authority:
   - root: /sub7/*
     user: 1234
     pass: 5678
-    failureMessage: 認証ダメでしたww
+    failureMessage: Authoricate Failed.
+
+blocks:
+  - root: /block_1/*
+    statusCode: 404
+  - root: /block_1/*
+    ignoreAddress:
+      - 200.150.0.25
+      - 200.150.6.151
+    statusCode: 404
+
+domain:
+  - remote: http://localhost:1111
+    next: http://localhost:2222
+
+setHeaders:
+  - root: /res_1/*
+    headers:
+      cache-control: max-age=3600
+
